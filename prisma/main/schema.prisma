@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "node_modules/_prisma/main/client"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Permissao {
+  DEV
+  ADM
+  TEC
+  USR
+}
+
+model Usuario {
+  id            String    @id @default(uuid())
+  nome          String
+  nomeSocial    String?
+  login         String    @unique
+  email         String    @unique
+  permissao     Permissao @default(USR)
+  status        Boolean   @default(true)
+  avatar        String?   @db.Text
+
+  ultimoLogin   DateTime  @default(now())
+  criadoEm      DateTime  @default(now())
+  atualizadoEm  DateTime  @default(now()) @updatedAt
+
+  publicacoes   Publicacao[]
+
+  @@map("usuarios")
+}
+
+enum Tipo_Documento {
+  COMUNIQUESE
+  INDEFERIMENTO
+  DEFERIMENTO
+}
+
+model Publicacao {
+  id              String          @id @default(uuid())
+  numero_processo String
+  tipo_documento  Tipo_Documento
+  tecnico_id      String
+  data_emissao    DateTime        @db.Date
+  data_publicacao DateTime        @db.Date
+  prazo           Int             @default(30)
+
+  criadoEm        DateTime        @default(now())
+  atualizadoEm    DateTime        @default(now()) @updatedAt
+
+  tecnico         Usuario         @relation(fields: [tecnico_id], references: [id])
+
+  @@map("publicacoes")
+}
+
+model Coordenadoria {
+  id            String   @id @default(uuid())
+  sigla         String   @unique
+  status        Boolean  @default(true)
+  codigo        String   @unique
+
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @default(now()) @updatedAt
+
+  @@map("coordenadorias")
+}
