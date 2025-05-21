@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
+  url      = env("MAIN_DATABASE_URL")
 }
 
 enum Permissao {
@@ -24,6 +24,7 @@ model Usuario {
   permissao     Permissao @default(USR)
   status        Boolean   @default(true)
   avatar        String?   @db.Text
+  rf            String?   @unique
 
   ultimoLogin   DateTime  @default(now())
   criadoEm      DateTime  @default(now())
@@ -40,31 +41,47 @@ enum Tipo_Documento {
   DEFERIMENTO
 }
 
+enum Colegiado {
+  AR
+  RR
+  CEUSO
+  CAIEPS
+  CAEHIS
+  CPPU
+  CTLU
+}
+
 model Publicacao {
-  id              String          @id @default(uuid())
-  numero_processo String
-  tipo_documento  Tipo_Documento
-  tecnico_id      String
-  data_emissao    DateTime        @db.Date
-  data_publicacao DateTime        @db.Date
-  prazo           Int             @default(30)
+  id                String          @id @default(uuid())
+  numero_processo   String
+  tipo_documento    Tipo_Documento
+  tecnico_id        String
+  coordenadoria_id  String
+  data_emissao      DateTime        @db.Date
+  data_publicacao   DateTime        @db.Date
+  prazo             Int             @default(30)
+  colegiado         Colegiado       @default(AR)
 
-  criadoEm        DateTime        @default(now())
-  atualizadoEm    DateTime        @default(now()) @updatedAt
+  criadoEm          DateTime        @default(now())
+  atualizadoEm      DateTime        @default(now()) @updatedAt
 
-  tecnico         Usuario         @relation(fields: [tecnico_id], references: [id])
+  tecnico           Usuario         @relation(fields: [tecnico_id], references: [id])
+  coordenadoria     Coordenadoria   @relation(fields: [coordenadoria_id], references: [id])
 
   @@map("publicacoes")
 }
 
 model Coordenadoria {
   id            String   @id @default(uuid())
-  sigla         String   @unique
-  status        Boolean  @default(true)
+  sigla         String?  @unique
+  nome          String
   codigo        String   @unique
+  status        Boolean  @default(true)
 
   criadoEm      DateTime @default(now())
   atualizadoEm  DateTime @default(now()) @updatedAt
+
+  publicacoes   Publicacao[]
 
   @@map("coordenadorias")
 }

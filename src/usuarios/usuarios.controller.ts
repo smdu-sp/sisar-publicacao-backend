@@ -13,7 +13,7 @@ import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { Permissoes } from 'src/auth/decorators/permissoes.decorator';
 import { UsuarioAtual } from 'src/auth/decorators/usuario-atual.decorator';
-import { Usuario } from '@prisma/client';
+import { Usuario } from '_prisma/main/client';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { BuscarNovoResponseDTO, UsuarioAutorizadoResponseDTO, UsuarioDesativadoResponseDTO, UsuarioPaginadoResponseDTO, UsuarioResponseDTO } from './dto/usuario-response.dto';
 
@@ -58,6 +58,11 @@ export class UsuariosController {
     @Body() updateUsuarioDto: UpdateUsuarioDto
   ): Promise<UsuarioResponseDTO> {
     return this.usuariosService.atualizar(usuario, id, updateUsuarioDto);
+  }
+
+  @Get('lista-tecnicos')
+  listaTecnicos(): Promise<{ value: string, label: string }[]> {
+    return this.usuariosService.listaTecnicos();
   }
 
   @Permissoes('ADM')

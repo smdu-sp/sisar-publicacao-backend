@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
-import { Usuario } from '@prisma/client';
+import { Usuario } from '_prisma/main/client';
 import { UsuarioPayload } from './models/UsuarioPayload';
 import { JwtService } from '@nestjs/jwt';
 import { UsuarioToken } from './models/UsuarioToken';

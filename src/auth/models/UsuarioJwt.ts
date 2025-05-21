@@ -1,4 +1,4 @@
-import { Permissao } from "@prisma/client";
+import { Permissao } from "_prisma/main/client";
 
 export interface UsuarioJwt {
   id: string;

@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { Permissao } from "@prisma/client"
+import { Permissao } from "_prisma/main/client"
 import { IsDate, IsString, IsUUID } from "class-validator"
 
 export class EuResponseDTO {

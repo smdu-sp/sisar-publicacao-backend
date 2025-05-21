@@ -6,11 +6,13 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RoleGuard } from './auth/guards/role.guard';
+import { PublicacoesModule } from './publicacoes/publicacoes.module';
+import { CoordenadoriasModule } from './coordenadorias/coordenadorias.module';
 
 @Global()
 @Module({
   exports: [AppService],
-  imports: [PrismaModule, AuthModule, UsuariosModule],
+  imports: [PrismaModule, AuthModule, UsuariosModule, PublicacoesModule, CoordenadoriasModule],
   providers: [AppService,
     {
       provide: APP_GUARD,

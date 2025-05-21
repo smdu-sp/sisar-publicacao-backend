@@ -1,5 +1,5 @@
 import { Global, Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '_prisma/main/client';
 
 @Global()
 @Injectable()

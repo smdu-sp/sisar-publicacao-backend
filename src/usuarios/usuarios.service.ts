@@ -9,16 +9,18 @@ import {
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { $Enums, Permissao, Usuario } from '@prisma/client';
+import { $Enums, Permissao, Usuario } from '_prisma/main/client';
 import { AppService } from 'src/app.service';
 import { Client as LdapClient } from 'ldapts';
 import { BuscarNovoResponseDTO, UsuarioAutorizadoResponseDTO, UsuarioPaginadoResponseDTO, UsuarioResponseDTO } from './dto/usuario-response.dto';
+import { SguService } from 'src/prisma/sgu.service';
 
 @Global()
 @Injectable()
 export class UsuariosService {
   constructor(
     private prisma: PrismaService,
+    private sgu: SguService,
     private app: AppService,
   ) {}
 
@@ -50,6 +52,25 @@ export class UsuariosService {
     });
     if (!lista || lista.length == 0) throw new ForbiddenException('Nenhum usuário encontrado.');
     return lista;
+  }
+  
+  async listaTecnicos(): Promise<{ value: string, label: string }[]> {
+    const funcionarios = await this.sgu.tblUsuarios.findMany({
+      orderBy: { cpNome: 'asc' },
+      select: {
+        cpRF: true,
+        cpNome: true
+      }
+    });
+    if (!funcionarios) throw new InternalServerErrorException('Nenhum usuário encontrado.');
+    const tecnicos = funcionarios.map(funcionario => {
+      return {
+        value: funcionario.cpRF,
+        label: funcionario.cpNome
+      }
+    })
+    if (tecnicos.length === 0) throw new NotFoundException('Nenhum usuário encontrado.');
+    return tecnicos;
   }
 
   async buscarTecnicos(): Promise<{ id: string, nome: string }[]> {
@@ -188,7 +209,7 @@ export class UsuariosService {
     try {
       await client.bind(`${process.env.USER_LDAP}${process.env.LDAP_DOMAIN}`, process.env.PASS_LDAP);
     } catch (error) {
-      throw new InternalServerErrorException('Não foi possível buscar o usuário.');
+      throw new InternalServerErrorException('Não foi possível buscar o usuário3.');
     }
     let nome: string, email: string, login: string;
     try {
@@ -197,18 +218,52 @@ export class UsuariosService {
         {
           filter: `(&(name=${nome_busca})(company=SMUL))`,
           scope: 'sub',
-          attributes: ['name', 'mail'],
+          attributes: ['name', 'mail', 'sAMAccountname'],
         }
       );
-      const { name, mail, samaccountname } = usuario.searchEntries[0];
+      const { name, mail, sAMAccountname } = usuario.searchEntries[0];
+      console.log(usuario.searchEntries[0]);
       nome = name.toString();
       email = mail.toString().toLowerCase();
-      login = samaccountname.toString().toLowerCase();
+      login = sAMAccountname.toString().toLowerCase();
       return { nome, email, login };
     } catch (error) {
       await client.unbind();
-      throw new InternalServerErrorException('Não foi possível buscar o usuário.');
+      throw new InternalServerErrorException('Não foi possível buscar o usuário4.');
     }
+  }
+
+  async buscarPorRf(rf: string): Promise<{ nome: string, email: string, login: string }> {
+    const loginBusca = `d${rf.substring(0, 6)}`;
+    console.log(loginBusca);
+    const client: LdapClient = new LdapClient({
+      url: process.env.LDAP_SERVER,
+    });
+    try {
+      await client.bind(`${process.env.USER_LDAP}${process.env.LDAP_DOMAIN}`, process.env.PASS_LDAP);
+    } catch (error) {
+      throw new InternalServerErrorException('Não foi possível buscar o usuário1.');
+    }
+    let nome: string, email: string, login: string;
+    try {
+      const usuario = await client.search(
+        process.env.LDAP_BASE,
+        {
+          filter: `(&(sAMAccountname=${loginBusca}))`,
+          scope: 'sub',
+          attributes: ['name', 'mail', 'sAMAccountname'],
+        }
+      );
+      const { name, mail, sAMAccountname } = usuario.searchEntries[0];
+      console.log(usuario.searchEntries[0]);
+      nome = name.toString();
+      email = mail.toString().toLowerCase();
+      login = sAMAccountname.toString().toLowerCase();
+    } catch (error) {
+      await client.unbind();
+      throw new InternalServerErrorException('Não foi possível buscar o usuário2.');
+    }
+    return { nome, email, login };
   }
 
   async buscarNovo(login: string): Promise<BuscarNovoResponseDTO> {
@@ -217,7 +272,7 @@ export class UsuariosService {
     if (usuarioExiste && usuarioExiste.status !== true){
       const usuarioReativado = await this.prisma.usuario.update({ 
         where: { id: usuarioExiste.id }, 
-        data: { status: true } 
+        data: { status: true }
       });
       return usuarioReativado;
     }
@@ -234,7 +289,7 @@ export class UsuariosService {
       const usuario = await client.search(
         process.env.LDAP_BASE,
         {
-          filter: `(&(samaccountname=${login})(company=SMUL))`,
+          filter: `(&(samaccountname=${login}))`,
           scope: 'sub',
           attributes: ['name', 'mail'],
         }
