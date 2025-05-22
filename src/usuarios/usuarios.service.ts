@@ -216,16 +216,16 @@ export class UsuariosService {
       const usuario = await client.search(
         process.env.LDAP_BASE,
         {
-          filter: `(&(name=${nome_busca})(company=SMUL))`,
+          filter: `(&(name=${nome_busca}))`,
           scope: 'sub',
-          attributes: ['name', 'mail', 'sAMAccountname'],
+          attributes: ['name', 'mail', 'sAMAccountName'],
         }
       );
-      const { name, mail, sAMAccountname } = usuario.searchEntries[0];
+      const { name, mail, sAMAccountName } = usuario.searchEntries[0];
       console.log(usuario.searchEntries[0]);
       nome = name.toString();
       email = mail.toString().toLowerCase();
-      login = sAMAccountname.toString().toLowerCase();
+      login = sAMAccountName.toString().toLowerCase();
       return { nome, email, login };
     } catch (error) {
       await client.unbind();
@@ -249,16 +249,16 @@ export class UsuariosService {
       const usuario = await client.search(
         process.env.LDAP_BASE,
         {
-          filter: `(&(sAMAccountname=${loginBusca}))`,
+          filter: `(&(sAMAccountName=${loginBusca}))`,
           scope: 'sub',
-          attributes: ['name', 'mail', 'sAMAccountname'],
+          attributes: ['name', 'mail', 'sAMAccountName'],
         }
       );
-      const { name, mail, sAMAccountname } = usuario.searchEntries[0];
+      const { name, mail, sAMAccountName } = usuario.searchEntries[0];
       console.log(usuario.searchEntries[0]);
       nome = name.toString();
       email = mail.toString().toLowerCase();
-      login = sAMAccountname.toString().toLowerCase();
+      login = sAMAccountName.toString().toLowerCase();
     } catch (error) {
       await client.unbind();
       throw new InternalServerErrorException('Não foi possível buscar o usuário2.');
