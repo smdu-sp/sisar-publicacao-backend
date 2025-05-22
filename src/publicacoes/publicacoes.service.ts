@@ -44,7 +44,7 @@ export class PublicacoesService {
     let novoUsuario = await this.usuario.buscarPorRf(rf);
     if (!novoUsuario || novoUsuario.login == '' || novoUsuario.login == null) novoUsuario = await this.usuario.buscarPorNome(funcionario.cpNome);
     if (!novoUsuario || novoUsuario.login == '' || novoUsuario.login == null) return null;
-    tecnico = await this.prisma.usuario.create({ data: { ...novoUsuario, permissao: 'TEC' }});
+    tecnico = await this.prisma.usuario.create({ data: { ...novoUsuario, rf, permissao: 'TEC' }});
     return tecnico;
   }
 
