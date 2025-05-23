@@ -17,8 +17,10 @@ export class PublicacoesController {
     @Query('pagina') pagina?: string,
     @Query('limite') limite?: string,
     @Query('busca') busca?: string,
+    @Query('tipo_documento') tipo_documento?: string,
+    @Query('colegiado') colegiado?: string,
   ) {
-    return this.publicacoesService.buscarTudo(+pagina, +limite, busca);
+    return this.publicacoesService.buscarTudo(+pagina, +limite, busca, tipo_documento, colegiado);
   }
 
   @Get('buscar-por-id/:id')

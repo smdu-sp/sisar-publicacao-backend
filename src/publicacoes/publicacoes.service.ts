@@ -3,7 +3,7 @@ import { CreatePublicacaoDto } from './dto/create-publicacao.dto';
 import { UpdatePublicacaoDto } from './dto/update-publicacao.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AppService } from 'src/app.service';
-import { Publicacao, TecnicoPublicacao, Usuario } from '_prisma/main/client';
+import { Colegiado, Publicacao, TecnicoPublicacao, Tipo_Documento, Usuario } from '_prisma/main/client';
 import { SguService } from 'src/prisma/sgu.service';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
 
@@ -52,12 +52,16 @@ export class PublicacoesService {
     pagina: number = 1,
     limite: number = 10,
     busca?: string,
+    tipo_documento?: string,
+    colegiado?: string
   ) {
     [pagina, limite] = this.app.verificaPagina(pagina, limite);
     const searchParams = {
       ...(busca && { OR: [
         { numero_processo: { contains: busca }},
       ]}),
+      ...(tipo_documento && tipo_documento !== '' && tipo_documento !== 'all' && { tipo_documento: Tipo_Documento[tipo_documento] }),
+      ...(colegiado && colegiado !== '' && colegiado !== 'all' && { colegiado: Colegiado[colegiado] }),
     };
     const total: number = await this.prisma.publicacao.count({ where: searchParams });
     if (total == 0) return { total: 0, pagina: 0, limite: 0, data: [] };
