@@ -24,15 +24,21 @@ model Usuario {
   permissao     Permissao @default(USR)
   status        Boolean   @default(true)
   avatar        String?   @db.Text
-  rf            String?   @unique
 
   ultimoLogin   DateTime  @default(now())
   criadoEm      DateTime  @default(now())
   atualizadoEm  DateTime  @default(now()) @updatedAt
 
+  @@map("usuarios")
+}
+
+model TecnicoPublicacao {
+  rf            String @unique @id
+  nome          String
+
   publicacoes   Publicacao[]
 
-  @@map("usuarios")
+  @@map("tecnicos")
 }
 
 enum Tipo_Documento {
@@ -52,21 +58,21 @@ enum Colegiado {
 }
 
 model Publicacao {
-  id                String          @id @default(uuid())
+  id                String            @id @default(uuid())
   numero_processo   String
   tipo_documento    Tipo_Documento
-  tecnico_id        String
+  tecnico_rf        String
   coordenadoria_id  String
-  data_emissao      DateTime        @db.Date
-  data_publicacao   DateTime        @db.Date
-  prazo             Int             @default(30)
-  colegiado         Colegiado       @default(AR)
+  data_emissao      DateTime          @db.Date
+  data_publicacao   DateTime          @db.Date
+  prazo             Int               @default(30)
+  colegiado         Colegiado         @default(AR)
 
-  criadoEm          DateTime        @default(now())
-  atualizadoEm      DateTime        @default(now()) @updatedAt
+  criadoEm          DateTime          @default(now())
+  atualizadoEm      DateTime          @default(now()) @updatedAt
 
-  tecnico           Usuario         @relation(fields: [tecnico_id], references: [id])
-  coordenadoria     Coordenadoria   @relation(fields: [coordenadoria_id], references: [id])
+  tecnico           TecnicoPublicacao @relation(fields: [tecnico_rf], references: [rf])
+  coordenadoria     Coordenadoria     @relation(fields: [coordenadoria_id], references: [id])
 
   @@map("publicacoes")
 }

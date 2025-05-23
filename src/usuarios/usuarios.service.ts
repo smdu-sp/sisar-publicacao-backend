@@ -91,14 +91,12 @@ export class UsuariosService {
     if (loguser) throw new ForbiddenException('Login já cadastrado.');
     const emailuser: UsuarioResponseDTO = await this.buscarPorEmail(createUsuarioDto.email);
     if (emailuser) throw new ForbiddenException('Email já cadastrado.');
-    let { permissao, nome } = createUsuarioDto;
-    const funcionario = await this.sgu.tblUsuarios.findFirst({ where: { cpNome: createUsuarioDto.nome.toUpperCase() }});
+    let { permissao } = createUsuarioDto;
     permissao = this.validaPermissaoCriador(permissao, usuarioLogado.permissao);
     const usuario: Usuario = await this.prisma.usuario.create({
       data: {
         ...createUsuarioDto,
         permissao,
-        rf: funcionario ? funcionario.cpRF : '',
       },
     });
     if (!usuario) throw new InternalServerErrorException('Não foi possível criar o usuário, tente novamente.');

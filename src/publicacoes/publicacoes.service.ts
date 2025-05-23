@@ -3,7 +3,7 @@ import { CreatePublicacaoDto } from './dto/create-publicacao.dto';
 import { UpdatePublicacaoDto } from './dto/update-publicacao.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AppService } from 'src/app.service';
-import { Publicacao, Usuario } from '_prisma/main/client';
+import { Publicacao, TecnicoPublicacao, Usuario } from '_prisma/main/client';
 import { SguService } from 'src/prisma/sgu.service';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
 
@@ -17,34 +17,34 @@ export class PublicacoesService {
   ) {}
   
   async criar(createPublicacaoDto: CreatePublicacaoDto) {
-    const { tecnico_rf, coordenadoria_id } = createPublicacaoDto;
+    const { tecnico_rf, coordenadoria_id, numero_processo } = createPublicacaoDto;
+    if (!numero_processo || numero_processo == '') throw new BadRequestException('Processo não informado.');
     if (!tecnico_rf || tecnico_rf == '') throw new BadRequestException('Tecnico não informado.');
     if (!coordenadoria_id || coordenadoria_id == '') throw new BadRequestException('Coordenadoria não informado.');
     const tecnico = await this.cadastrarTecnico(tecnico_rf);
     if (!tecnico) throw new BadRequestException('Tecnico não cadastrado.');
     const coordenadoria = await this.prisma.coordenadoria.findUnique({ where: { id: coordenadoria_id } });
     if (!coordenadoria) throw new BadRequestException('Coordenadoria não encontrada.');
-    delete createPublicacaoDto.tecnico_rf;
     const publicacao: Publicacao = await this.prisma.publicacao.create({
       data: {
         ...createPublicacaoDto,
-        tecnico_id: tecnico.id,
+        numero_processo: this.formataProcesso(numero_processo),
       },
     });
     if (!publicacao) throw new InternalServerErrorException('Publicação nao criada.');
     return publicacao;
   }
 
-  async cadastrarTecnico(rf: string): Promise<Usuario> {
-    console.log(rf);
-    let tecnico = await this.prisma.usuario.findUnique({ where: { rf }});
+  formataProcesso(numero_processo: string) {
+    return numero_processo.replaceAll('.', '').replaceAll('-', '').replaceAll('/', '');
+  }
+
+  async cadastrarTecnico(rf: string): Promise<TecnicoPublicacao> {
+    let tecnico = await this.prisma.tecnicoPublicacao.findUnique({ where: { rf }});
     if (tecnico) return tecnico;
     const funcionario = await this.sgu.tblUsuarios.findFirst({ where: { cpRF: rf }});
     if (!funcionario) return null;
-    let novoUsuario = await this.usuario.buscarPorRf(rf);
-    if (!novoUsuario || novoUsuario.login == '' || novoUsuario.login == null) novoUsuario = await this.usuario.buscarPorNome(funcionario.cpNome);
-    if (!novoUsuario || novoUsuario.login == '' || novoUsuario.login == null) return null;
-    tecnico = await this.prisma.usuario.create({ data: { ...novoUsuario, rf, permissao: 'TEC' }});
+    tecnico = await this.prisma.tecnicoPublicacao.create({ data: { rf, nome: funcionario.cpNome }});
     return tecnico;
   }
 

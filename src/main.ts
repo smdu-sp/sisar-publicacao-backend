@@ -21,14 +21,14 @@ async function bootstrap() {
   app.enableCors({ origin: 'http://localhost:3001' });
   const options = new DocumentBuilder()
     .addBearerAuth()
-    .setTitle('Atendimento ao Público - Agendamentos')
-    .setDescription('Backend em NestJS para aplicação de agendamento de Atendimentos ao Público.',)
+    .setTitle('SISAR - Sistema de controle Aprova Rápido e Requalifica Rápido')
+    .setDescription('Backend em NestJS para aplicação SISAR.',)
     .setVersion('versão 1.0')
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('', app, document);
   await app.listen(port);
-  console.log("API outorga rodando em http://localhost:" + port);
+  console.log("API SISAR rodando em http://localhost:" + port);
   console.log("SwaggerUI rodando em http://localhost:" + port + "/api");
 
 }
