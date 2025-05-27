@@ -4,17 +4,17 @@ const prisma = new PrismaClient();
 
 async function main() {
   const usuario = await prisma.usuario.upsert({
-    where: { login: 'd927014' },
+    where: { login: 'x414090' },
     update: {
-      nome: 'Victor Alexander Menezes de Abreu',
-      email: 'vmabreu@prefeitura.sp.gov.br',
+      nome: 'Fernando Lacerda',
+      email: 'fanjoslacerda@prefeitura.sp.gov.br',
       permissao: 'DEV',
       status: true,
     },
     create: {
-      nome: 'Victor Alexander Menezes de Abreu',
-      login: 'd927014',
-      email: 'vmabreu@prefeitura.sp.gov.br',
+      nome: 'Fernando Lacerda',
+      login: 'x414090',
+      email: 'fanjoslacerda@prefeitura.sp.gov.br',
       permissao: 'DEV',
       status: true,
     }
