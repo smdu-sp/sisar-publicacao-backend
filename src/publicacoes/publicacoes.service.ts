@@ -3,7 +3,7 @@ import { CreatePublicacaoDto } from './dto/create-publicacao.dto';
 import { UpdatePublicacaoDto } from './dto/update-publicacao.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AppService } from 'src/app.service';
-import { Colegiado, Publicacao, TecnicoPublicacao, Tipo_Documento, Usuario } from '_prisma/main/client';
+import { Colegiado, Publicacao, TecnicoPublicacao, Tipo_Documento, Usuario, } from '_prisma/main/client';
 import { SguService } from 'src/prisma/sgu.service';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
 
@@ -14,8 +14,8 @@ export class PublicacoesService {
     private sgu: SguService,
     private usuario: UsuariosService,
     private app: AppService,
-  ) {}
-  
+  ) { }
+
   async criar(createPublicacaoDto: CreatePublicacaoDto) {
     const { tecnico_rf, coordenadoria_id, numero_processo } = createPublicacaoDto;
     if (!numero_processo || numero_processo == '') throw new BadRequestException('Processo não informado.');
@@ -40,11 +40,11 @@ export class PublicacoesService {
   }
 
   async cadastrarTecnico(rf: string): Promise<TecnicoPublicacao> {
-    let tecnico = await this.prisma.tecnicoPublicacao.findUnique({ where: { rf }});
+    let tecnico = await this.prisma.tecnicoPublicacao.findUnique({ where: { rf } });
     if (tecnico) return tecnico;
-    const funcionario = await this.sgu.tblUsuarios.findFirst({ where: { cpRF: rf }});
+    const funcionario = await this.sgu.tblUsuarios.findFirst({ where: { cpRF: rf } });
     if (!funcionario) return null;
-    tecnico = await this.prisma.tecnicoPublicacao.create({ data: { rf, nome: funcionario.cpNome }});
+    tecnico = await this.prisma.tecnicoPublicacao.create({ data: { rf, nome: funcionario.cpNome } });
     return tecnico;
   }
 
@@ -57,9 +57,11 @@ export class PublicacoesService {
   ) {
     [pagina, limite] = this.app.verificaPagina(pagina, limite);
     const searchParams = {
-      ...(busca && { OR: [
-        { numero_processo: { contains: busca }},
-      ]}),
+      ...(busca && {
+        OR: [
+          { numero_processo: { contains: busca } },
+        ]
+      }),
       ...(tipo_documento && tipo_documento !== '' && tipo_documento !== 'all' && { tipo_documento: Tipo_Documento[tipo_documento] }),
       ...(colegiado && colegiado !== '' && colegiado !== 'all' && { colegiado: Colegiado[colegiado] }),
     };
