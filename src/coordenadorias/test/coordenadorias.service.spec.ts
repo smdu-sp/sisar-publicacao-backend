@@ -182,21 +182,21 @@ describe('Coordenadorias Service Test', () => {
 
   //deverá buscar uma coordenadoria pelo id
 
-  it('deverá buscar uma coordenadoria pelo id', async () =>{
+  it('deverá buscar uma coordenadoria pelo id', async () => {
 
     const mockCoordenadoria = {
-        id: '1a2b3c4d-0000-0000-0000-000000000001',
-        sigla: 'COGEP',
-        nome: 'Coordenadoria de Gestão de Pessoas',
-        codigo: '00000001111',
-      };
+      id: '1a2b3c4d-0000-0000-0000-000000000001',
+      sigla: 'COGEP',
+      nome: 'Coordenadoria de Gestão de Pessoas',
+      codigo: '00000001111',
+    };
 
-      (prisma.coordenadoria.findUnique as jest.Mock).mockResolvedValue(mockCoordenadoria);
+    (prisma.coordenadoria.findUnique as jest.Mock).mockResolvedValue(mockCoordenadoria);
 
-      const result = await service.buscarPorId('1a2b3c4d-0000-0000-0000-000000000001')
+    const result = await service.buscarPorId('1a2b3c4d-0000-0000-0000-000000000001')
 
-      expect(result).toEqual(mockCoordenadoria);
-      expect(prisma.coordenadoria.findUnique).toHaveBeenCalledWith({
+    expect(result).toEqual(mockCoordenadoria);
+    expect(prisma.coordenadoria.findUnique).toHaveBeenCalledWith({
       where: {
         id: expect.any(String),
       },
@@ -205,124 +205,126 @@ describe('Coordenadorias Service Test', () => {
 
   //deverá buscar uma coordenadoria pela sigla
 
-  it('deverá buscar uma coordenadoria pela sigla', async () =>{
-     const mockCoordenadoria = {
-        id: '1a2b3c4d-0000-0000-0000-000000000001',
-        sigla: 'COGEP',
-        nome: 'Coordenadoria de Gestão de Pessoas',
-        codigo: '00000001111',
-      };
+  it('deverá buscar uma coordenadoria pela sigla', async () => {
+    const mockCoordenadoria = {
+      id: '1a2b3c4d-0000-0000-0000-000000000001',
+      sigla: 'COGEP',
+      nome: 'Coordenadoria de Gestão de Pessoas',
+      codigo: '00000001111',
+    };
 
-      (prisma.coordenadoria.findUnique as jest.Mock).mockResolvedValue(mockCoordenadoria);
+    (prisma.coordenadoria.findUnique as jest.Mock).mockResolvedValue(mockCoordenadoria);
 
-      const result = await service.buscarPorSigla(mockCoordenadoria.sigla)
+    const result = await service.buscarPorSigla(mockCoordenadoria.sigla)
 
-      expect(result).not.toBe(null)
-      expect(result).toEqual(mockCoordenadoria)
-      expect(prisma.coordenadoria.findUnique).toHaveBeenCalledWith({
-        where: {
-          sigla: expect.any(String)
-        },
-      });
+    expect(result).not.toBe(null)
+    expect(result).toEqual(mockCoordenadoria)
+    expect(prisma.coordenadoria.findUnique).toHaveBeenCalledWith({
+      where: {
+        sigla: expect.any(String)
+      },
+    });
   })
 
   //deverá buscar uma coordenadoria pelo código
 
   it('deverá buscar uma coordenadoria pelo código', async () => {
     const mockCoordenadoria = {
-        id: '1a2b3c4d-0000-0000-0000-000000000001',
-        sigla: 'COGEP',
-        nome: 'Coordenadoria de Gestão de Pessoas',
-        codigo: '00000001111',
-      };
+      id: '1a2b3c4d-0000-0000-0000-000000000001',
+      sigla: 'COGEP',
+      nome: 'Coordenadoria de Gestão de Pessoas',
+      codigo: '00000001111',
+    };
 
-      (prisma.coordenadoria.findUnique as jest.Mock).mockResolvedValue(mockCoordenadoria);
+    (prisma.coordenadoria.findUnique as jest.Mock).mockResolvedValue(mockCoordenadoria);
 
-      const result = await service.buscarPorCodigo(mockCoordenadoria.codigo)
+    const result = await service.buscarPorCodigo(mockCoordenadoria.codigo)
 
-      expect(result).not.toBe(null);
-      expect(result).toEqual(mockCoordenadoria)
-      expect(prisma.coordenadoria.findUnique).toHaveBeenCalledWith({
-        where: {
-          codigo: expect.any(String)
-        }
-      });
+    expect(result).not.toBe(null);
+    expect(result).toEqual(mockCoordenadoria)
+    expect(prisma.coordenadoria.findUnique).toHaveBeenCalledWith({
+      where: {
+        codigo: expect.any(String)
+      }
+    });
   })
 
   //deverá atualizar uma coordenadoria
 
   it('deverá atualizar uma coordenadoria', async () => {
-  const mockCoordenadoria = {
-    id: '1a2b3c4d-0000-0000-0000-000000000001',
-    sigla: 'COGEP',
-    nome: 'Coordenadoria de Gestão de Pessoas',
-    codigo: '00000001111',
-    status: true,
-    criadoEm: new Date('2025-05-27T14:30:00.000-03:00'),
-    atualizadoEm: new Date('2025-05-27T14:30:00.000-03:00')
-  };
+    const mockCoordenadoria = {
+      id: '1a2b3c4d-0000-0000-0000-000000000001',
+      sigla: 'COGEP',
+      nome: 'Coordenadoria de Gestão de Pessoas',
+      codigo: '00000001111',
+      status: true,
+      criadoEm: new Date('2025-05-27T14:30:00.000-03:00'),
+      atualizadoEm: new Date('2025-05-27T14:30:00.000-03:00')
+    };
 
-  const mockUpdateCoordenadoria = {
-    ...mockCoordenadoria,
-    nome: 'Coordenadoria de Gerenciamento de Pessoas',
-    atualizadoEm: new Date() 
-  };
+    const mockUpdateCoordenadoria = {
+      ...mockCoordenadoria,
+      nome: 'Coordenadoria de Gerenciamento de Pessoas',
+      atualizadoEm: new Date()
+    };
 
-  const updateParam = {
-    nome: 'Coordenadoria de Gerenciamento de Pessoas',
-  };
+    const updateParam = {
+      nome: 'Coordenadoria de Gerenciamento de Pessoas',
+    };
 
-  jest.spyOn(service, 'buscarPorId').mockResolvedValue(mockCoordenadoria);
-  jest.spyOn(service, 'buscarPorSigla').mockResolvedValue(null); 
-  jest.spyOn(service, 'buscarPorCodigo').mockResolvedValue(null);
-  (prisma.coordenadoria.update as jest.Mock).mockResolvedValue(mockUpdateCoordenadoria);
+    jest.spyOn(service, 'buscarPorId').mockResolvedValue(mockCoordenadoria);
+    jest.spyOn(service, 'buscarPorSigla').mockResolvedValue(null);
+    jest.spyOn(service, 'buscarPorCodigo').mockResolvedValue(null);
+    (prisma.coordenadoria.update as jest.Mock).mockResolvedValue(mockUpdateCoordenadoria);
 
-  const result = await service.atualizar(
-    mockCoordenadoria.id, 
-    updateParam
-  );
+    const result = await service.atualizar(
+      mockCoordenadoria.id,
+      updateParam
+    );
 
-  expect(result).not.toBeNull();
-  expect(result).toEqual(mockUpdateCoordenadoria);
-  
-  expect(service.buscarPorId).toHaveBeenCalledWith(mockCoordenadoria.id);
-  expect(prisma.coordenadoria.update).toHaveBeenCalledWith({
-    where: { id: mockCoordenadoria.id },
-    data: updateParam
+    expect(result).not.toBeNull();
+    expect(result).toEqual(mockUpdateCoordenadoria);
+
+    expect(service.buscarPorId).toHaveBeenCalledWith(mockCoordenadoria.id);
+    expect(prisma.coordenadoria.update).toHaveBeenCalledWith({
+      where: { id: mockCoordenadoria.id },
+      data: updateParam
+    });
   });
-});
 
   //deverá desativar uma coordenadoria
 
   it('deverá desativar uma coordenadoria', async () => {
-  const mockCoordenadoria = {
-    id: '1a2b3c4d-0000-0000-0000-000000000001',
-    sigla: 'COGEP',
-    nome: 'Coordenadoria de Gestão de Pessoas',
-    codigo: '00000001111',
-    status: true, 
-  };
+    const mockCoordenadoria = {
+      id: '1a2b3c4d-0000-0000-0000-000000000001',
+      sigla: 'COGEP',
+      nome: 'Coordenadoria de Gestão de Pessoas',
+      codigo: '00000001111',
+      status: true,
+    };
 
-  const mockDesativado = { 
-    ...mockCoordenadoria,
-    status: false,
-  };
+    const mockDesativado = {
+      ...mockCoordenadoria,
+      status: false,
+    };
 
-  (prisma.coordenadoria.findUnique as jest.Mock).mockResolvedValue(mockCoordenadoria);
-  (prisma.coordenadoria.update as jest.Mock).mockResolvedValue(mockDesativado);
+    (prisma.coordenadoria.findUnique as jest.Mock).mockResolvedValue(mockCoordenadoria);
+    (prisma.coordenadoria.update as jest.Mock).mockResolvedValue(mockDesativado);
 
-  const result = await service.desativar(mockCoordenadoria.id);
+    const result = await service.desativar(mockCoordenadoria.id);
 
-  expect(result).not.toBeNull();
-  expect(result).toEqual({ desativado: true });
-  
-  expect(prisma.coordenadoria.findUnique).toHaveBeenCalledWith({
-    where: { id: mockCoordenadoria.id },
+    expect(result).not.toBeNull();
+    expect(result).toEqual({ desativado: true });
+
+    expect(prisma.coordenadoria.findUnique).toHaveBeenCalledWith({
+      where: { id: mockCoordenadoria.id },
+    });
+
+    expect(prisma.coordenadoria.update).toHaveBeenCalledWith({
+      where: { id: mockCoordenadoria.id },
+      data: { status: false },
+    });
   });
 
-  expect(prisma.coordenadoria.update).toHaveBeenCalledWith({
-    where: { id: mockCoordenadoria.id },
-    data: { status: false }, 
-  });
-});
+
 });
