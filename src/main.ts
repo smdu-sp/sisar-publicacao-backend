@@ -26,7 +26,7 @@ async function bootstrap() {
     .setVersion('versão 1.0')
     .build();
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('', app, document);
+  SwaggerModule.setup('api', app, document);
   await app.listen(port);
   console.log("API SISAR rodando em http://localhost:" + port);
   console.log("SwaggerUI rodando em http://localhost:" + port + "/api");

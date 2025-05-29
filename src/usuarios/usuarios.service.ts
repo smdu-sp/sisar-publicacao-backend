@@ -22,7 +22,7 @@ export class UsuariosService {
     private prisma: PrismaService,
     private sgu: SguService,
     private app: AppService,
-  ) {}
+  ) { }
 
   validaPermissaoCriador(
     permissao: $Enums.Permissao,
@@ -38,7 +38,7 @@ export class UsuariosService {
 
   async permitido(id: string, permissoes: string[]): Promise<boolean> {
     if (!id || id === '') throw new BadRequestException('ID vazio.');
-    const usuario = await this.prisma.usuario.findUnique({ 
+    const usuario = await this.prisma.usuario.findUnique({
       where: { id },
       select: { permissao: true }
     });
@@ -53,7 +53,7 @@ export class UsuariosService {
     if (!lista || lista.length == 0) throw new ForbiddenException('Nenhum usuário encontrado.');
     return lista;
   }
-  
+
   async listaTecnicos(): Promise<{ value: string, label: string }[]> {
     const funcionarios = await this.sgu.tblUsuarios.findMany({
       orderBy: { cpNome: 'asc' },
@@ -112,14 +112,16 @@ export class UsuariosService {
   ): Promise<UsuarioPaginadoResponseDTO> {
     [pagina, limite] = this.app.verificaPagina(pagina, limite);
     const searchParams = {
-      ...(busca && { OR: [
-        { nome: { contains: busca }},
-        { nomeSocial: { contains: busca }},
-        { login: { contains: busca }},
-        { email: { contains: busca }},
-      ]}),
-      ...(status && status !== '' && { 
-        status: status === 'ATIVO' ? true : (status === 'INATIVO' ? false : undefined) 
+      ...(busca && {
+        OR: [
+          { nome: { contains: busca } },
+          { nomeSocial: { contains: busca } },
+          { login: { contains: busca } },
+          { email: { contains: busca } },
+        ]
+      }),
+      ...(status && status !== '' && {
+        status: status === 'ATIVO' ? true : (status === 'INATIVO' ? false : undefined)
       }),
       ...(permissao && permissao !== '' && { permissao: Permissao[permissao] }),
     };
@@ -141,16 +143,16 @@ export class UsuariosService {
   }
 
   async buscarPorId(id: string): Promise<UsuarioResponseDTO> {
-    const usuario: Usuario = await this.prisma.usuario.findUnique({ where: { id }});
+    const usuario: Usuario = await this.prisma.usuario.findUnique({ where: { id } });
     return usuario;
   }
 
   async buscarPorEmail(email: string): Promise<UsuarioResponseDTO> {
-    return await this.prisma.usuario.findUnique({ where: { email }});
+    return await this.prisma.usuario.findUnique({ where: { email } });
   }
 
   async buscarPorLogin(login: string): Promise<UsuarioResponseDTO> {
-    return await this.prisma.usuario.findUnique({ where: { login }});
+    return await this.prisma.usuario.findUnique({ where: { login } });
   }
 
 
@@ -164,7 +166,7 @@ export class UsuariosService {
       const usuario = await this.buscarPorLogin(updateUsuarioDto.login);
       if (usuario && usuario.id !== id) throw new ForbiddenException('Login já cadastrado.');
     }
-    const usuarioAntes = await this.prisma.usuario.findUnique({ where: { id }});
+    const usuarioAntes = await this.prisma.usuario.findUnique({ where: { id } });
     if (['TEC', 'USR'].includes(usuarioAntes.permissao) && id !== usuarioAntes.id) throw new ForbiddenException('Operação não autorizada para este usuário.');
     let { permissao } = updateUsuarioDto;
     permissao = permissao && permissao.toString() !== '' ? this.validaPermissaoCriador(permissao, usuarioLogado.permissao) : usuarioAntes.permissao;
@@ -196,7 +198,7 @@ export class UsuariosService {
   }
 
   async validaUsuario(id: string): Promise<UsuarioResponseDTO> {
-    const usuario: Usuario = await this.prisma.usuario.findUnique({ where: { id }});
+    const usuario: Usuario = await this.prisma.usuario.findUnique({ where: { id } });
     if (!usuario) throw new ForbiddenException('Usuário não encontrado.');
     if (usuario.status !== true) throw new ForbiddenException('Usuário inativo.');
     return usuario;
@@ -222,7 +224,6 @@ export class UsuariosService {
         }
       );
       const { name, mail, sAMAccountName } = usuario.searchEntries[0];
-      console.log(usuario.searchEntries[0]);
       nome = name.toString();
       email = mail.toString().toLowerCase();
       login = sAMAccountName.toString().toLowerCase();
@@ -235,7 +236,6 @@ export class UsuariosService {
 
   async buscarPorRf(rf: string): Promise<{ nome: string, email: string, login: string }> {
     const loginBusca = `d${rf.substring(0, 6)}`;
-    console.log(loginBusca);
     const client: LdapClient = new LdapClient({
       url: process.env.LDAP_SERVER,
     });
@@ -269,9 +269,9 @@ export class UsuariosService {
   async buscarNovo(login: string): Promise<BuscarNovoResponseDTO> {
     const usuarioExiste = await this.buscarPorLogin(login);
     if (usuarioExiste && usuarioExiste.status === true) throw new ForbiddenException('Login já cadastrado.');
-    if (usuarioExiste && usuarioExiste.status !== true){
-      const usuarioReativado = await this.prisma.usuario.update({ 
-        where: { id: usuarioExiste.id }, 
+    if (usuarioExiste && usuarioExiste.status !== true) {
+      const usuarioReativado = await this.prisma.usuario.update({
+        where: { id: usuarioExiste.id },
         data: { status: true }
       });
       return usuarioReativado;
