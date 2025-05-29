@@ -1,4 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
+import { BadRequestException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { AppService } from "src/app.service";
 import { SguService } from "src/prisma/sgu.service";
@@ -7,6 +8,8 @@ import { CreatePublicacaoDto } from "../dto/create-publicacao.dto";
 import { UpdatePublicacaoDto } from "../dto/update-publicacao.dto";
 import { UsuariosService } from "src/usuarios/usuarios.service";
 import { CoordenadoriasService } from "src/coordenadorias/coordenadorias.service";
+import { Tipo_Documento, Colegiado } from '_prisma/main/client';
+
 
 describe('PublicaçõesService Test', () => {
 
@@ -192,5 +195,110 @@ describe('PublicaçõesService Test', () => {
 
     });
 
+    it('deve retornar técnico existente', async () => {
+        (prisma.tecnicoPublicacao.findUnique as jest.Mock).mockResolvedValue({ rf: '1', nome: 'João' });
+        const result = await service.cadastrarTecnico('1');
+        expect(result).not.toBe(null);
+        expect(result).toEqual({ rf: '1', nome: 'João' });
+    });
 
+    it('deve retornar null se não encontrar no SGU', async () => {
+        (prisma.tecnicoPublicacao.findUnique as jest.Mock).mockResolvedValue(null);
+        (sgu.tblUsuarios.findFirst as jest.Mock).mockResolvedValue(null);
+        const result = await service.cadastrarTecnico('1');
+        expect(result).toBe(null);
+    });
+
+    it('deve lançar erro se id for vazio', async () => {
+        await expect(service.buscarPorId('')).rejects.toThrow(BadRequestException);
+    });
+
+    it('deve retornar publicação se existir', async () => {
+        (prisma.publicacao.findUnique as jest.Mock).mockResolvedValue({ id: '550e8400-e29b-41d4-a716-446655440000' });
+        const result = await service.buscarPorId('550e8400-e29b-41d4-a716-446655440000');
+        expect(result).not.toBe(null)
+        expect(result).toEqual({ id: '550e8400-e29b-41d4-a716-446655440000' });
+    });
+
+    it('deve atualizar publicação', async () => {
+
+        const mockTenico = {
+            rf: '1234567',
+            nome: 'Lusimar Agostinho da Silva',
+        }
+
+        const mockCoordenadoria = {
+            id: 'coord-123-xyz',
+            sigla: 'COGEAE',
+            nome: 'Coordenadoria de Gestão Educacional e Acompanhamento Escolar',
+            codigo: 'CGEAE-2023',
+            status: true,
+            criadoEm: new Date('2024-01-01T10:00:00.000Z'),
+            atualizadoEm: new Date('2024-01-01T10:00:00.000Z'),
+        }
+
+        const mockPublicacao = {
+            id: 'acbd18db-4cc2-4d0f-a3e0-91f0adf58c24',
+            numero_processo: '20231234567',
+            tipo_documento: Tipo_Documento.COMUNIQUESE,
+            tecnico_rf: mockTenico.rf,
+            coordenadoria_id: mockCoordenadoria.id,
+            data_emissao: new Date('2024-05-01'),
+            data_publicacao: new Date('2024-05-10'),
+            prazo: 15,
+            colegiado: Colegiado.AR,
+            criadoEm: new Date('2024-05-01T08:00:00.000Z'),
+            atualizadoEm: new Date('2024-05-01T08:00:00.000Z'),
+        };
+
+        const updateParams = {
+            tipo_documento: Tipo_Documento.DEFERIMENTO,
+        }
+
+        const mockUpdatePublicacao = {
+            id: 'acbd18db-4cc2-4d0f-a3e0-91f0adf58c24',
+            numero_processo: '20231234567',
+            tipo_documento: Tipo_Documento.DEFERIMENTO,
+            tecnico_rf: mockTenico.rf,
+            coordenadoria_id: mockCoordenadoria.id,
+            data_emissao: new Date('2024-05-01'),
+            data_publicacao: new Date('2024-05-10'),
+            prazo: 15,
+            colegiado: Colegiado.AR,
+            criadoEm: new Date('2024-05-01T08:00:00.000Z'),
+            atualizadoEm: new Date('2024-05-01T08:00:00.000Z'),
+        };
+
+        jest.spyOn(service, 'buscarPorId').mockResolvedValue(mockPublicacao);
+        (prisma.publicacao.update as jest.Mock).mockResolvedValue(mockUpdatePublicacao);
+
+        const result = await service.atualizar(mockPublicacao.id, updateParams);
+
+        expect(result).not.toBe(null);
+        expect(result).toEqual(mockUpdatePublicacao);
+        expect(prisma.publicacao.findUnique).toHaveBeenCalledWith({
+            where: {
+                id: expect.any(String)
+            }
+        });
+        expect(prisma.publicacao.update).toHaveBeenCalledWith({
+            where: {
+                id: expect.any(String)
+            },
+            data: updateParams
+        });
+    });
+
+    it('deve retornar resultado vazio se nenhum encontrado', async () => {
+        (prisma.publicacao.count as jest.Mock).mockResolvedValue(0);
+        const result = await service.buscarTudo();
+        expect(result).toEqual({ total: 0, pagina: 0, limite: 0, data: [] });
+    });
+
+    it('deve retornar publicações com paginação', async () => {
+        (prisma.publicacao.count as jest.Mock).mockResolvedValue(2);
+        (prisma.publicacao.findMany as jest.Mock).mockResolvedValue([{ id: '1' }, { id: '2' }]);
+        const result = await service.buscarTudo();
+        expect(result.data.length).toBe(2);
+    });
 })
